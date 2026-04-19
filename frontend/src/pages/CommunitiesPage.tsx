@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import ComPostCard from '../components/composts/ComPostCard';
-import { type ComPost } from '../components/composts/ComPostCard';
+import ComPostCard, { type ComPost } from '../components/composts/ComPostCard';
+import ComPostSkeletonLoader from '../components/composts/ComPostSkeletonLoader';
 import { Loader2, Globe, Compass } from 'lucide-react';
 import ComSearchBar from '../components/communities/ComSearchBar';
 import { Link } from 'react-router-dom';
@@ -232,11 +232,10 @@ const CommunitiesPage = () => {
 
 
                     {isSearching ? (
-                        <div className="flex flex-col items-center justify-center py-24 gap-6">
-                            <div className="relative">
-                                <Loader2 className="animate-spin text-primary" size={48} />
-                            </div>
-                            <p className="text-sm font-semibold text-text-muted-dark tracking-wide animate-pulse uppercase">Searching the network...</p>
+                        <div className="space-y-6">
+                            <ComPostSkeletonLoader />
+                            <ComPostSkeletonLoader />
+                            <ComPostSkeletonLoader />
                         </div>
                     ) : searchQuery ? (
                         <div className="space-y-6 slide-up">
@@ -263,10 +262,11 @@ const CommunitiesPage = () => {
                             )}
                         </div>
                     ) : loading ? (
-
-                        <div className="flex flex-col items-center justify-center py-20 gap-4">
-                            <Loader2 className="animate-spin text-primary" size={40} />
-                            <p className="text-sm font-medium text-text-muted-dark italic  uppercase">Building your feed...</p>
+                        <div className="space-y-6">
+                            <ComPostSkeletonLoader />
+                            <ComPostSkeletonLoader />
+                            <ComPostSkeletonLoader />
+                            <ComPostSkeletonLoader />
                         </div>
                     ) : (joinedPosts.length > 0 || unjoinedPosts.length > 0) ? (
                         <div className="space-y-8">
