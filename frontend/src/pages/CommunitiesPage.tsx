@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import ComPostCard, { type ComPost } from '../components/composts/ComPostCard';
 import ComPostSkeletonLoader from '../components/composts/ComPostSkeletonLoader';
-import { Loader2, Globe, Compass } from 'lucide-react';
+import { Globe, Compass } from 'lucide-react';
 import ComSearchBar from '../components/communities/ComSearchBar';
 import { Link } from 'react-router-dom';
 import { CommunityListDialog } from '../components/communities/CommunityListDialog';
