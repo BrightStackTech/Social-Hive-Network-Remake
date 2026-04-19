@@ -4,6 +4,8 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { CategoryProvider } from './context/CategoryContext';
+import MainLoadingScreen from './components/MainLoadingScreen';
+
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -25,6 +27,7 @@ import ExplorePosts from './pages/ExplorePosts';
 import CommunitiesPage from './pages/CommunitiesPage';
 import LiveSessionsPage from './pages/LiveSessionsPage';
 import LiveSessionsHistory from './pages/LiveSessionsHistory';
+
 import GoogleCallback from './pages/GoogleCallback';
 import GroupsPage from './pages/GroupsPage';
 import GroupIdPage from './pages/GroupIdPage';
@@ -52,10 +55,12 @@ import CheckUserUpdatePage from './pages/CheckUserUpdatePage';
 function App() {
   return (
     <ThemeProvider>
+      <MainLoadingScreen>
       <AuthProvider>
         <CategoryProvider>
           <SocketProvider>
             <Toaster
+
             position="top-center"
             toastOptions={{
               duration: 3000,
@@ -95,6 +100,7 @@ function App() {
               <Route path="/chats/group/:groupId" element={<Chats />} />
               <Route path="/chats/channel/:channelId" element={<Chats />} />
               <Route path="/chats/channel/:channelId/:messageId" element={<Chats />} />
+
               <Route path="/explore" element={<ExplorePosts />} />
               <Route path="/communities" element={<CommunitiesPage />} />
               <Route path="/live-sessions" element={<LiveSessionsPage />} />
@@ -129,7 +135,9 @@ function App() {
         </SocketProvider>
       </CategoryProvider>
     </AuthProvider>
-  </ThemeProvider>
+      </MainLoadingScreen>
+    </ThemeProvider>
+
   );
 }
 
