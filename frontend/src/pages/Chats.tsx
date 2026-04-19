@@ -27,8 +27,12 @@ const CHAT_EVENTS = {
 
 export default function Chats() {
   document.title = 'Chats - Social Hive';
-  const { socket, onlineUsers } = useSocket();
+  const { socket, onlineUsers, resetUnreads } = useSocket();
   const { user } = useAuth();
+
+  useEffect(() => {
+    resetUnreads();
+  }, [resetUnreads]);
   const { username, groupId, channelId, messageId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

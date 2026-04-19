@@ -263,17 +263,21 @@ const ComPostCard = ({ post }: { post: ComPost }) => {
       {/* Content Area */}
       <div className="flex-1 min-w-0 sm:p-4 p-3">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1.5 flex-wrap sm:text-[12px] text-[11px] tracking-tight">
-            <Link to={`/communities/c/${post.community?.communityName}`} className="text-white [html.light_&]:text-black font-black hover:text-primary transition-colors no-underline truncate max-w-[100px] sm:max-w-none">
-              c/{post.community?.communityName || 'Unknown'}
-            </Link>
-            <span className="text-text-muted-dark opacity-40 select-none">•</span>
-            <span className="text-text-muted-dark font-black uppercase tracking-tighter opacity-70 hidden xs:inline">Posted by</span>
-            <Link to={`/profile/${post.author?.username}`} className="text-text-dark [html.light_&]:text-text-light font-black hover:text-primary transition-colors no-underline truncate max-w-[80px] sm:max-w-none">
-               {post.author?.username || 'Unknown'}
-            </Link>
-            <span className="text-text-muted-dark opacity-40 select-none">•</span>
-            <span className="text-text-muted-dark font-medium whitespace-nowrap opacity-60">{formattedDate}</span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-1.5 sm:text-[12px] text-[11px] tracking-tight overflow-hidden">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <Link to={`/communities/c/${post.community?.communityName}`} className="text-white [html.light_&]:text-black font-black hover:text-primary transition-colors no-underline truncate max-w-[120px] sm:max-w-none">
+                c/{post.community?.communityName || 'Unknown'}
+              </Link>
+              <span className="text-text-muted-dark opacity-40 select-none hidden sm:inline">•</span>
+              <span className="text-text-muted-dark font-black uppercase tracking-tighter opacity-70 hidden xs:inline">Posted by</span>
+              <Link to={`/profile/${post.author?.username}`} className="text-text-dark [html.light_&]:text-text-light font-black hover:text-primary transition-colors no-underline truncate max-w-[100px] sm:max-w-none">
+                {post.author?.username || 'Unknown'}
+              </Link>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-text-muted-dark opacity-40 select-none hidden sm:inline">•</span>
+              <span className="text-text-muted-dark font-medium whitespace-nowrap opacity-60 ml-0 sm:ml-0">{formattedDate}</span>
+            </div>
           </div>
 
           {(isAdmin || isAuthor) && (

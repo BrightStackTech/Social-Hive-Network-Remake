@@ -24,6 +24,8 @@ import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/Dialog';
 import { Button } from './ui/Button';
 
+import { useSocket } from '../context/SocketContext';
+
 const sidebarLinks = [
   { name: 'Explore', path: '/explore', icon: Compass },
   { name: 'Search', path: '/search', icon: Search },
@@ -45,6 +47,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadTypes } = useSocket();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
@@ -72,6 +75,8 @@ export default function Sidebar() {
         {sidebarLinks.map((link) => {
           const Icon = link.icon;
           const active = isActive(link.path);
+          const onChatsPage = location.pathname.startsWith('/chats');
+
           return (
             <Link
               key={link.name}
@@ -84,16 +89,27 @@ export default function Sidebar() {
                             : 'text-text-dark [html.light_&]:text-text-light hover:bg-white/5 [html.light_&]:hover:bg-black/5'
                           }`}
             >
-              {link.name === 'Profile' ? (
-                <img
-                  src={profilePicUrl}
-                  alt="Profile"
-                  className="w-6 h-6 rounded-full object-cover"
-                />
-              ) : (
-                <Icon size={22} className={active ? 'text-primary' : 'text-text-muted-dark [html.light_&]:text-text-muted-light'} />
-              )}
-              {link.name}
+              <div className="relative">
+                {link.name === 'Profile' ? (
+                  <img
+                    src={profilePicUrl}
+                    alt="Profile"
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                ) : (
+                  <Icon size={22} className={active ? 'text-primary' : 'text-text-muted-dark [html.light_&]:text-text-muted-light'} />
+                )}
+                
+                {/* Notification Dots for Chats */}
+                {link.name === 'Chats' && !onChatsPage && (
+                  <div className="absolute -top-1 -right-1 flex gap-0.5">
+                    {unreadTypes.individual && <span className="w-2 h-2 bg-yellow-400 rounded-full border border-surface-dark shadow-sm" />}
+                    {unreadTypes.group && <span className="w-2 h-2 bg-green-500 rounded-full border border-surface-dark shadow-sm" />}
+                    {unreadTypes.channel && <span className="w-2 h-2 bg-blue-500 rounded-full border border-surface-dark shadow-sm" />}
+                  </div>
+                )}
+              </div>
+              <span className="flex-1">{link.name}</span>
             </Link>
           );
         })}
@@ -147,7 +163,7 @@ export default function Sidebar() {
                          z-40">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-border-dark [html.light_&]:border-border-light">
-          <Link to="/" className="flex items-center gap-2 group no-underline">
+          <Link to="/explore" className="flex items-center gap-2 group no-underline">
             <img
               src="https://res.cloudinary.com/domckasfk/image/upload/v1773008287/social-hive-mini-project_tzq4ns.png"
               alt="SocialHive"
@@ -169,7 +185,7 @@ export default function Sidebar() {
                        [html.light_&]:bg-surface-card-light/80 [html.light_&]:border-border-light">
         <div className="flex items-center justify-between px-4 h-14">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 no-underline">
+          <Link to="/explore" className="flex items-center gap-2 no-underline">
             <img
               src="https://res.cloudinary.com/domckasfk/image/upload/v1773008287/social-hive-mini-project_tzq4ns.png"
               alt="SocialHive"

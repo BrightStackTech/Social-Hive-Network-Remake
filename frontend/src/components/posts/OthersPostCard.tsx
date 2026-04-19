@@ -219,7 +219,7 @@ export default function OthersPostCard({ post, followCallback }: Props) {
                 />
               </Link>
               <div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-1.5">
                   <Link 
                     to={`/profile/${effectivePost.createdBy.username}`} 
                     className="font-semibold text-sm text-text-dark [html.light_&]:text-text-light hover:text-primary transition-colors no-underline"
@@ -227,8 +227,8 @@ export default function OthersPostCard({ post, followCallback }: Props) {
                   >
                     {effectivePost.createdBy.username}
                   </Link>
-                  <div className="w-1 h-1 rounded-full bg-text-muted-dark [html.light_&]:bg-text-muted-light" />
-                  <p className="text-[11px] text-text-muted-dark [html.light_&]:text-text-muted-light font-normal">
+                  <div className="hidden sm:block w-1 h-1 rounded-full bg-text-muted-dark [html.light_&]:bg-text-muted-light" />
+                  <p className="text-[10px] sm:text-[11px] text-text-muted-dark [html.light_&]:text-text-muted-light font-normal">
                     {formatDistanceToNow(new Date(effectivePost.createdAt), { addSuffix: true })}
                   </p>
                 </div>
