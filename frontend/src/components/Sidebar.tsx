@@ -99,17 +99,18 @@ export default function Sidebar() {
                 ) : (
                   <Icon size={22} className={active ? 'text-primary' : 'text-text-muted-dark [html.light_&]:text-text-muted-light'} />
                 )}
-                
+              </div>
+              <div className="flex-1 flex items-center gap-2">
+                <span>{link.name}</span>
                 {/* Notification Dots for Chats */}
                 {link.name === 'Chats' && !onChatsPage && (
-                  <div className="absolute -top-1 -right-1 flex gap-0.5">
-                    {unreadTypes.individual && <span className="w-2 h-2 bg-yellow-400 rounded-full border border-surface-dark shadow-sm" />}
-                    {unreadTypes.group && <span className="w-2 h-2 bg-green-500 rounded-full border border-surface-dark shadow-sm" />}
-                    {unreadTypes.channel && <span className="w-2 h-2 bg-blue-500 rounded-full border border-surface-dark shadow-sm" />}
-                  </div>
+                <div className="flex gap-1 items-center ml-2">
+                  {unreadTypes.individual && <span className="w-2.5 h-2.5 bg-yellow-400 rounded-full shadow-[0_0_8px_rgba(250,204,21,0.6)] animate-pulse" title="New private message" />}
+                  {unreadTypes.group && <span className="w-2.5 h-2.5 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse" title="New group message" />}
+                  {unreadTypes.channel && <span className="w-2.5 h-2.5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.6)] animate-pulse" title="New channel message" />}
+                </div>
                 )}
               </div>
-              <span className="flex-1">{link.name}</span>
             </Link>
           );
         })}

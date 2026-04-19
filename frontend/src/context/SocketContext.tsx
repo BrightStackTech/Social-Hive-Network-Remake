@@ -23,6 +23,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const [unreadTypes, setUnreadTypes] = useState({ individual: false, group: false, channel: false });
   const chatTypeCache = useRef<Record<string, ChatType>>({});
 
+  console.log('Sidebar unreadTypes:', unreadTypes);
+
   const resetUnreads = useCallback(() => {
     setUnreadTypes({ individual: false, group: false, channel: false });
   }, []);
@@ -32,14 +34,35 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     if (token && user) {
       getAllChats().then(res => {
         const chats = res.data.data;
-        chats.forEach((chat: any) => {
-          if (!chat.isGroupChat) chatTypeCache.current[chat._id] = 'individual';
-          else if (chat.group) chatTypeCache.current[chat._id] = 'group';
-          else chatTypeCache.current[chat._id] = 'channel';
-        });
-      }).catch(() => {});
+        if (Array.isArray(chats)) {
+          chats.forEach((chat: any) => {
+            const chatId = chat._id?.toString() || chat._id;
+            if (!chat.isGroupChat) chatTypeCache.current[chatId] = 'individual';
+            else if (chat.group) chatTypeCache.current[chatId] = 'group';
+            else chatTypeCache.current[chatId] = 'channel';
+          });
+          // console.log('Chat type cache populated:', Object.keys(chatTypeCache.current).length, 'chats');
+        }
+      }).catch(err => {});
     }
   }, [token, user]);
+
+  const fetchAndCacheChat = async (chatId: string) => {
+    try {
+      const res = await getAllChats();
+      const chats = res.data.data;
+      if (Array.isArray(chats)) {
+        chats.forEach((chat: any) => {
+          const id = chat._id?.toString() || chat._id;
+          if (!chat.isGroupChat) chatTypeCache.current[id] = 'individual';
+          else if (chat.group) chatTypeCache.current[id] = 'group';
+          else chatTypeCache.current[id] = 'channel';
+        });
+        return chatTypeCache.current[chatId];
+      }
+    } catch (e) {}
+    return null;
+  };
 
   useEffect(() => {
     if (!token || !user) {
@@ -88,14 +111,24 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     });
 
     // Listen for new messages to update notification dots
-    newSocket.on('message_received', (message: any) => {
-        // If message is from current user, don't notify
-        const currentUserId = user._id || (user as any).id;
-        if (message.sender?._id === currentUserId || message.sender === currentUserId) return;
+    newSocket.on('message_received', async (message: any) => {
+        const currentUserId = (user?._id || (user as any)?.id)?.toString();
+        const senderId = message.sender?._id?.toString() || message.sender?.toString() || message.sender;
         
-        const type = chatTypeCache.current[message.chat];
+        console.log('Socket received message. Sender:', senderId, 'Me:', currentUserId);
+        if (senderId === currentUserId) return;
+
+        const chatId = message.chat?._id?.toString() || message.chat?.toString() || message.chat;
+        let type: ChatType | null | undefined = chatTypeCache.current[chatId];
+        
+        // Fallback: If type not in cache, try to refresh cache once
+        if (!type) {
+            type = await fetchAndCacheChat(chatId);
+        }
+        
         if (type) {
-            setUnreadTypes(prev => ({ ...prev, [type]: true }));
+            console.log('Updating unreadTypes for type:', type);
+            setUnreadTypes(prev => ({ ...prev, [type as ChatType]: true }));
         }
     });
 
