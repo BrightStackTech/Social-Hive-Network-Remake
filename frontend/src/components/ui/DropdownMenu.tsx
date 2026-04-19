@@ -26,7 +26,14 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({ children, open: cont
 
 export const DropdownMenuTrigger: React.FC<{ children: React.ReactNode; asChild?: boolean; open?: boolean; setOpen?: (open: boolean) => void }> = ({ children, open, setOpen }) => {
   return (
-    <div onClick={() => setOpen?.(!open)} className="cursor-pointer">
+    <div 
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setOpen?.(!open);
+      }} 
+      className="cursor-pointer"
+    >
       {children}
     </div>
   );

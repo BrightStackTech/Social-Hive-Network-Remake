@@ -47,20 +47,20 @@ export const MeetingAppProvider = ({ children }: { children: ReactNode }) => {
     const raisedHandsParticipantsRef = useRef<any[]>([]);
 
     const participantRaisedHand = (participantId: string) => {
-      const raisedHandsParticipants = [...raisedHandsParticipantsRef.current];
+      const updatedParticipants = [...raisedHandsParticipantsRef.current];
       const newItem = { participantId, raisedHandOn: new Date().getTime() };
-
-      const participantFound = raisedHandsParticipants.findIndex(
+      
+      const participantFound = updatedParticipants.findIndex(
         ({ participantId: pID }) => pID === participantId
       );
-
+      
       if (participantFound === -1) {
-        raisedHandsParticipants.push(newItem);
+        updatedParticipants.push(newItem);
       } else {
-        raisedHandsParticipants[participantFound] = newItem;
+        updatedParticipants[participantFound] = newItem;
       }
-
-      setRaisedHandsParticipants(raisedHandsParticipants);
+      
+      setRaisedHandsParticipants(updatedParticipants);
     };
 
     useEffect(() => {

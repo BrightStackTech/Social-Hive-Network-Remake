@@ -87,7 +87,7 @@ export function JoiningScreen({
     if (meetingId === id) {
       setToken(token);
       setMeetingId(id);
-      onClickStartMeeting(id);
+      // onClickStartMeeting(id); // Stop auto-redirect
     } else {
       toast.error(err || "Invalid meeting ID");
     }
@@ -99,7 +99,7 @@ export function JoiningScreen({
     if (meetingId) {
       setToken(token);
       setMeetingId(meetingId);
-      onClickStartMeeting(meetingId);
+      // onClickStartMeeting(meetingId); // Stop auto-redirect
     }
     return { meetingId, err };
   }, [setToken, setMeetingId, onClickStartMeeting]);

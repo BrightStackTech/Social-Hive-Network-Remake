@@ -197,11 +197,11 @@ const LiveSessionsHistory = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#0a0b0d] text-white flex flex-col font-sans px-6 md:px-10 relative pb-6">
+    <div className="w-full min-h-screen bg-[#0a0b0d] [html.light_&]:bg-[#f8fafc] text-white [html.light_&]:text-slate-900 flex flex-col font-sans px-6 md:px-10 relative pb-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto pt-4 w-full">
         <button 
            onClick={() => navigate('/live-sessions')}
-           className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-4 group cursor-pointer"
+           className="flex items-center gap-2 text-white/60 [html.light_&]:text-slate-500 hover:text-white [html.light_&]:hover:text-black transition-colors mb-4 group cursor-pointer"
         >
            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
            <span className="font-medium text-lg tracking-tight">Back</span>
@@ -209,20 +209,20 @@ const LiveSessionsHistory = () => {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-display font-bold text-text-dark [html.light_&]:text-text-light mb-2">
+            <h1 className="text-2xl font-display font-bold text-text-dark [html.light_&]:text-slate-900 mb-2">
               Live Sessions History
             </h1>
-            <p className="text-white/40 font-medium">
+            <p className="text-white/40 [html.light_&]:text-slate-500 font-medium">
               Review your past real-time collaborations and recordings.
             </p>
           </div>
           
           <div className="relative max-w-md w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted-dark [html.light_&]:text-text-muted-light" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted-dark [html.light_&]:text-slate-400" size={18} />
             <input
               type="text"
               placeholder="Search by name, ID or participant..."
-              className="w-full pl-10 pr-4 py-2.5 bg-surface-dark [html.light_&]:bg-surface-card-light border border-border-dark [html.light_&]:border-border-light rounded-xl text-text-dark [html.light_&]:text-text-light focus:border-primary/50 outline-none transition-all shadow-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-surface-dark [html.light_&]:bg-white border border-border-dark [html.light_&]:border-slate-200 rounded-xl text-white [html.light_&]:text-slate-900 focus:border-primary/50 outline-none transition-all shadow-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -233,39 +233,39 @@ const LiveSessionsHistory = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left">
               <thead>
-                <tr className="bg-white/5 [html.light_&]:bg-black/5 border-b border-border-dark [html.light_&]:border-border-light">
+                <tr className="bg-white/5 [html.light_&]:bg-slate-50/50 border-b border-border-dark [html.light_&]:border-slate-100">
                   <th className="px-6 py-4 cursor-pointer hover:text-primary transition-colors" onClick={() => handleSort("title")}>
-                    <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/50 [html.light_&]:text-slate-500">
                       Session Name <SortIcon currentKey="title" />
                     </div>
                   </th>
                   <th className="px-6 py-4 cursor-pointer hover:text-primary transition-colors" onClick={() => handleSort("meetingId")}>
-                    <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/50 [html.light_&]:text-slate-500">
                       Meeting ID <SortIcon currentKey="meetingId" />
                     </div>
                   </th>
                   <th className="px-6 py-4 cursor-pointer hover:text-primary transition-colors text-center" onClick={() => handleSort("createdAt")}>
-                    <div className="flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider">
+                    <div className="flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-white/50 [html.light_&]:text-slate-500">
                       Date <SortIcon currentKey="createdAt" />
                     </div>
                   </th>
                   <th className="px-6 py-4 text-center">
-                    <div className="text-sm font-bold uppercase tracking-wider">Time</div>
+                    <div className="text-sm font-bold uppercase tracking-wider text-white/50 [html.light_&]:text-slate-500">Time</div>
                   </th>
                   <th className="px-6 py-4 cursor-pointer hover:text-primary transition-colors" onClick={() => handleSort("participants")}>
-                    <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/50 [html.light_&]:text-slate-500">
                       Participants <SortIcon currentKey="participants" />
                     </div>
                   </th>
                   <th className="px-6 py-4">
-                    <div className="text-sm font-bold uppercase tracking-wider">Recordings</div>
+                    <div className="text-sm font-bold uppercase tracking-wider text-white/50 [html.light_&]:text-slate-500">Recordings</div>
                   </th>
                   <th className="px-6 py-4 text-right">
-                    <div className="text-sm font-bold uppercase tracking-wider">Action</div>
+                    <div className="text-sm font-bold uppercase tracking-wider text-white/50 [html.light_&]:text-slate-500">Action</div>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-dark [html.light_&]:divide-border-light">
+              <tbody className="divide-y divide-border-dark [html.light_&]:divide-slate-100">
                 {filteredSessions.length > 0 ? (
                   filteredSessions.map((session) => {                    const isHost = user && session.participants?.[0]?._id === user._id;
                     const absIndex = sessions.findIndex(s => s.meetingId === session.meetingId);
@@ -293,7 +293,7 @@ const LiveSessionsHistory = () => {
                               </div>
                             ) : (
                               <>
-                                <span className={`font-semibold text-[15px] ${session.title.toLowerCase() === "untitled session" ? "text-text-muted-dark opacity-50" : "text-text-dark [html.light_&]:text-text-light"}`}>
+                                <span className={`font-semibold text-[15px] ${session.title.toLowerCase() === "untitled session" ? "text-text-muted-dark opacity-50" : "text-white [html.light_&]:text-slate-900"}`}>
                                   {session.title}
                                 </span>
                                 {isHost && (
@@ -309,17 +309,17 @@ const LiveSessionsHistory = () => {
                           </div>
                         </td>
                         <td className="px-6 py-5 min-w-[150px]">
-                          <code className="text-xs font-mono bg-white/5 [html.light_&]:bg-black/5 px-2 py-1 rounded border border-border-dark [html.light_&]:border-border-light text-text-muted-dark [html.light_&]:text-text-muted-light whitespace-nowrap break-keep">
+                          <code className="text-xs font-mono bg-white/5 [html.light_&]:bg-slate-100 px-2 py-1 rounded border border-border-dark [html.light_&]:border-slate-200 text-text-muted-dark [html.light_&]:text-slate-600 whitespace-nowrap break-keep">
                             {session.meetingId}
                           </code>
                         </td>
                         <td className="px-6 py-5 text-center">
-                          <span className="text-sm text-text-dark [html.light_&]:text-text-light font-medium">
+                          <span className="text-sm text-white [html.light_&]:text-slate-900 font-medium">
                               {format(new Date(session.createdAt), 'MMM d, yyyy')}
                           </span>
                         </td>
                         <td className="px-6 py-5 text-center">
-                          <span className="text-xs text-text-muted-dark [html.light_&]:text-text-muted-light font-bold">
+                          <span className="text-xs text-text-muted-dark [html.light_&]:text-slate-500 font-bold">
                               {format(new Date(session.createdAt), 'hh:mm a')}
                           </span>
                         </td>

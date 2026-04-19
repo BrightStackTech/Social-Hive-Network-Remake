@@ -79,7 +79,7 @@ const ComPostCard = ({ post }: { post: ComPost }) => {
       try {
         const response = await axios.get(`${SERVER_URI}/communities/${post.community?.communityName}`);
         const community = response.data.data;
-        setIsAdmin(community.admin._id === userId);
+        setIsAdmin(String(community.admin._id) === String(userId));
       } catch (error) {
         // console.error('Error fetching community admin:', error);
       }
@@ -220,7 +220,7 @@ const ComPostCard = ({ post }: { post: ComPost }) => {
     return description;
   };
 
-  const isAuthor = post.author?._id === user?._id;
+  const isAuthor = user?._id && post.author?._id ? String(post.author._id) === String(user._id) : false;
 
   const renderTextWithLinks = (text: string | undefined) => {
     if (!text) return null;
@@ -280,8 +280,7 @@ const ComPostCard = ({ post }: { post: ComPost }) => {
             <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
               <DropdownMenuTrigger asChild>
                 <button 
-                  onClick={(e) => e.stopPropagation()}
-                  className="p-1.5 rounded-lg text-text-muted-dark [html.light_&]:text-text-muted-light hover:text-text-dark [html.light_&]:hover:text-text-light hover:bg-white/5 [html.light_&]:hover:bg-black/5 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                  className="p-1.5 rounded-lg text-text-muted-dark [html.light_&]:text-text-muted-light hover:text-text-dark [html.light_&]:hover:text-text-light hover:bg-white/5 [html.light_&]:hover:bg-black/5 sm:opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                 >
                   <MoreVertical size={18} />
                 </button>

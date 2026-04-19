@@ -3,10 +3,12 @@ import { JoiningScreen } from "../components/videosdk/JoiningScreen";
 import { MeetingAppProvider } from "../components/videosdk/MeetingAppContextDef";
 import { History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const LiveSessionsPage = () => {
   const navigate = useNavigate();
-  const [participantName, setParticipantName] = useState<string>("");
+  const { user } = useAuth();
+  const [participantName, setParticipantName] = useState<string>(user?.username || "");
   const [micOn, setMicOn] = useState<boolean>(false);
   const [webcamOn, setWebcamOn] = useState<boolean>(false);
   const [_token, setToken] = useState<string>("");

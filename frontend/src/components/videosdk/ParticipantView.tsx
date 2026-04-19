@@ -1,6 +1,7 @@
 import { useParticipant } from "@videosdk.live/react-sdk";
 import { useEffect, useMemo, useRef } from "react";
-import { MicOff } from "lucide-react";
+import { MicOff, Hand } from "lucide-react";
+import { useMeetingAppContext } from "./MeetingAppContextDef";
 
 export function ParticipantView({ participantId }: { participantId: string }) {
   const {
@@ -12,6 +13,12 @@ export function ParticipantView({ participantId }: { participantId: string }) {
     isLocal,
     isActiveSpeaker,
   } = useParticipant(participantId);
+
+  const { raisedHandsParticipants } = useMeetingAppContext();
+
+  const isHandRaised = useMemo(() => {
+    return raisedHandsParticipants.some((p: any) => p.participantId === participantId);
+  }, [raisedHandsParticipants, participantId]);
 
   const micRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -88,6 +95,15 @@ export function ParticipantView({ participantId }: { participantId: string }) {
           {isLocal ? "You" : displayName}
         </span>
       </div>
+
+      {/* Raised Hand Icon - Restored Behavior */}
+      {isHandRaised && (
+        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 transition-all duration-300 transform scale-100 opacity-100">
+          <div className="bg-[#fbbf24] text-black p-2 sm:p-2.5 rounded-xl shadow-[0_8px_20px_rgba(251,191,36,0.5)] border border-black/10 ring-2 ring-black/5">
+            <Hand size={20} fill="currentColor" strokeWidth={2.5} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

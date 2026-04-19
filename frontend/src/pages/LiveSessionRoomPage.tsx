@@ -151,7 +151,13 @@ const LiveSessionRoomPage = () => {
           joinWithoutUserInteraction={false}
         >
           <MeetingContainer
-            onMeetingLeave={() => window.close()}
+            onMeetingLeave={() => {
+                window.close();
+                // Fallback for same-tab navigation
+                setTimeout(() => {
+                    window.location.href = '/live-sessions';
+                }, 100);
+            }}
             setIsMeetingLeft={() => {}} 
             hasJoinedRef={hasJoinedRef}
             meetingId={meetingId || ""}

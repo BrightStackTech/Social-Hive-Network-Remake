@@ -61,12 +61,22 @@ export function MeetingContainer({
       const { senderId, senderName } = data;
       const isLocal = senderId === localParticipant?.id;
       
+      // Ignore local messages as they are handled in BottomBar.tsx
+      if (isLocal) return;
+
       notificationAudio.play().catch(() => {});
-      toast(`${isLocal ? "You" : senderName} raised hand 🖐🏼`, {
+      toast(`${senderName} raised hand 🖐🏼`, {
         icon: '🖐🏼',
         duration: 4000,
         position: 'bottom-left',
-        style: { background: '#1a1b1d', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }
+        style: { 
+            background: '#1a1b1d', 
+            color: '#fff', 
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '12px',
+            fontSize: '14px',
+            fontWeight: '600'
+        }
       });
 
       participantRaisedHand(senderId);

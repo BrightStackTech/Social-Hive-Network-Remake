@@ -59,7 +59,8 @@ export function BottomBar({ setIsMeetingLeft, meetingId, meetingTitle }: BottomB
   });
 
   const { user } = useAuth();
-  const { sideBarMode, setSideBarMode, hasUnreadMessages, setHasUnreadMessages } = useMeetingAppContext();
+  const { sideBarMode, setSideBarMode, hasUnreadMessages, setHasUnreadMessages, useRaisedHandParticipants } = useMeetingAppContext();
+  const { participantRaisedHand } = useRaisedHandParticipants();
   const [isHost, setIsHost] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pipMode, setPipMode] = useState(false);
@@ -417,6 +418,23 @@ export function BottomBar({ setIsMeetingLeft, meetingId, meetingTitle }: BottomB
         <button 
             onClick={() => {
                 publish("RAISE_HAND", { persist: true });
+                // Local feedback since PubSub doesn't trigger locally
+                toast(`You raised hand 🖐🏼`, {
+                    icon: '🖐🏼',
+                    duration: 4000,
+                    position: 'bottom-left',
+                    style: { 
+                        background: '#1a1b1d', 
+                        color: '#fff', 
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '12px',
+                        fontSize: '14px',
+                        fontWeight: '600'
+                    }
+                });
+                if (localParticipant?.id) {
+                    participantRaisedHand(localParticipant.id);
+                }
             }}
             className="hidden md:flex p-3 rounded-lg border border-white/10 bg-[#1a1b1d] text-white/60 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
         >
@@ -554,11 +572,28 @@ export function BottomBar({ setIsMeetingLeft, meetingId, meetingTitle }: BottomB
 
                 <div className="grid grid-cols-2 gap-4 mb-8">
                   {/* Hand Raise */}
-                  <button
-                    onClick={() => {
-                        publish("RAISE_HAND", { persist: true });
-                        setIsMobileMenuOpen(false);
-                    }}
+                    <button
+                      onClick={() => {
+                          publish("RAISE_HAND", { persist: true });
+                          // Local feedback
+                          toast(`You raised hand 🖐🏼`, {
+                              icon: '🖐🏼',
+                              duration: 4000,
+                              position: 'bottom-left',
+                              style: { 
+                                  background: '#1a1b1d', 
+                                  color: '#fff', 
+                                  border: '1px solid rgba(255,255,255,0.1)',
+                                  borderRadius: '12px',
+                                  fontSize: '14px',
+                                  fontWeight: '600'
+                              }
+                          });
+                          if (localParticipant?.id) {
+                              participantRaisedHand(localParticipant.id);
+                          }
+                          setIsMobileMenuOpen(false);
+                      }}
                     className="flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border bg-[#1a1b1d] border-white/5 text-white/60 transition-all active:scale-95"
                   >
                     <Hand size={24} />
