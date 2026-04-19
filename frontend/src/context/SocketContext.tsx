@@ -43,7 +43,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
           });
           // console.log('Chat type cache populated:', Object.keys(chatTypeCache.current).length, 'chats');
         }
-      }).catch(err => {});
+      }).catch(() => {});
     }
   }, [token, user]);
 
