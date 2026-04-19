@@ -75,7 +75,6 @@ export default function Sidebar() {
         {sidebarLinks.map((link) => {
           const Icon = link.icon;
           const active = isActive(link.path);
-          const onChatsPage = location.pathname.startsWith('/chats');
 
           return (
             <Link
