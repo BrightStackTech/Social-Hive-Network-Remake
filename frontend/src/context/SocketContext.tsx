@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, useCallback, useMemo, type ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { getAllChats } from '../api';
@@ -21,24 +21,22 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [unreadTypes, setUnreadTypes] = useState({ individual: false, group: false, channel: false });
-  const [chatTypeCache, setChatTypeCache] = useState<Record<string, ChatType>>({});
+  const chatTypeCache = useRef<Record<string, ChatType>>({});
 
-  const resetUnreads = () => {
+  const resetUnreads = useCallback(() => {
     setUnreadTypes({ individual: false, group: false, channel: false });
-  };
+  }, []);
 
   // Populate chat type cache on load or whenever user changes
   useEffect(() => {
     if (token && user) {
       getAllChats().then(res => {
         const chats = res.data.data;
-        const cache: Record<string, ChatType> = {};
         chats.forEach((chat: any) => {
-          if (!chat.isGroupChat) cache[chat._id] = 'individual';
-          else if (chat.group) cache[chat._id] = 'group';
-          else cache[chat._id] = 'channel';
+          if (!chat.isGroupChat) chatTypeCache.current[chat._id] = 'individual';
+          else if (chat.group) chatTypeCache.current[chat._id] = 'group';
+          else chatTypeCache.current[chat._id] = 'channel';
         });
-        setChatTypeCache(cache);
       }).catch(() => {});
     }
   }, [token, user]);
@@ -95,7 +93,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         const currentUserId = user._id || (user as any).id;
         if (message.sender?._id === currentUserId || message.sender === currentUserId) return;
         
-        const type = chatTypeCache[message.chat];
+        const type = chatTypeCache.current[message.chat];
         if (type) {
             setUnreadTypes(prev => ({ ...prev, [type]: true }));
         }
@@ -104,18 +102,34 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     // Also update cache if a new chat is created
     newSocket.on('new_chat', (chat: any) => {
         const type: ChatType = !chat.isGroupChat ? 'individual' : (chat.group ? 'group' : 'channel');
-        setChatTypeCache(prev => ({ ...prev, [chat._id]: type }));
+        chatTypeCache.current[chat._id] = type;
     });
 
     setSocket(newSocket);
 
     return () => {
       newSocket.disconnect();
+      newSocket.off('connect');
+      newSocket.off('disconnect');
+      newSocket.off('connect_error');
+      newSocket.off('online-users-list');
+      newSocket.off('userOnline');
+      newSocket.off('userOffline');
+      newSocket.off('message_received');
+      newSocket.off('new_chat');
     };
-  }, [token, user, chatTypeCache]); 
+  }, [token, user]); // Removed socket and chatTypeCache dependencies
+
+  const value = useMemo(() => ({
+    socket,
+    isConnected,
+    onlineUsers,
+    unreadTypes,
+    resetUnreads
+  }), [socket, isConnected, onlineUsers, unreadTypes, resetUnreads]);
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected, onlineUsers, unreadTypes, resetUnreads }}>
+    <SocketContext.Provider value={value}>
       {children}
     </SocketContext.Provider>
   );
