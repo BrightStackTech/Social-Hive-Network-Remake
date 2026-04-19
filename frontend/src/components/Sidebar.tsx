@@ -178,7 +178,7 @@ export default function Sidebar() {
                          z-40">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-border-dark [html.light_&]:border-border-light">
-          <Link to="/explore" className="flex items-center gap-2 group no-underline">
+          <Link to="/" className="flex items-center gap-2 group no-underline">
             <img
               src="https://res.cloudinary.com/domckasfk/image/upload/v1773008287/social-hive-mini-project_tzq4ns.png"
               alt="SocialHive"
@@ -200,7 +200,7 @@ export default function Sidebar() {
                        [html.light_&]:bg-surface-card-light/80 [html.light_&]:border-border-light">
         <div className="flex items-center justify-between px-4 h-14">
           {/* Logo */}
-          <Link to="/explore" className="flex items-center gap-2 no-underline">
+          <Link to="/" className="flex items-center gap-2 no-underline">
             <img
               src="https://res.cloudinary.com/domckasfk/image/upload/v1773008287/social-hive-mini-project_tzq4ns.png"
               alt="SocialHive"

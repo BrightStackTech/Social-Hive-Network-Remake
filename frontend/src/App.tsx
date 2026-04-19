@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './context/ThemeContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { CategoryProvider } from './context/CategoryContext';
 import MainLoadingScreen from './components/MainLoadingScreen';
@@ -52,6 +52,12 @@ import CheckUserUpdatePage from './pages/CheckUserUpdatePage';
 
 
 
+// Redirects based on auth state: logged in → /explore, guest → landing page
+function RootRedirect() {
+  const { token } = useAuth();
+  return token ? <Navigate to="/explore" replace /> : <LandingPage />;
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -76,7 +82,7 @@ function App() {
           <ScrollToTop />
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<RootRedirect />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
