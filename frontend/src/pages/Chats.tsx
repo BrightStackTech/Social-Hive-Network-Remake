@@ -27,7 +27,7 @@ const CHAT_EVENTS = {
 
 export default function Chats() {
   document.title = 'Chats - Social Hive';
-  const { socket, onlineUsers, resetUnreads } = useSocket();
+  const { socket, onlineUsers, unreadCountMap, resetChatUnread, resetUnreads } = useSocket();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -40,7 +40,6 @@ export default function Chats() {
   const [chats, setChats] = useState<ChatInterface[]>([]);
   const [message, setMessage] = useState<string>('');
   const [messages, setMessages] = useState<ChatMessageInterface[]>([]);
-  const [unreadMessages, setUnreadMessages] = useState<ChatMessageInterface[]>([]);
   const currentChat = useRef<ChatInterface | null>(null);
 
   const [chatsSearch, setChatsSearch] = useState<string>('');
@@ -477,6 +476,7 @@ export default function Chats() {
   }, [username, groupId, user, chatsFetched]);
 
   const handleOnChatClick = (clickedChat: ChatInterface) => {
+    resetChatUnread(clickedChat._id);
     // Navigate even if it's the current chat to keep URL in sync
     if (clickedChat.channel) {
       navigate(`/chats/channel/${clickedChat.channel}`);
@@ -526,7 +526,7 @@ export default function Chats() {
         setMessagesLoading(false);
       });
 
-    setUnreadMessages((prev) => prev.filter((msg) => msg.chat !== clickedChat._id));
+
     setTick(t => t + 1);
   };
 
@@ -652,30 +652,32 @@ export default function Chats() {
   const handleReceiveMessage = (data: ChatMessageInterface) => {
     updateChatInList(data);
     if (currentChat.current?._id === data.chat) {
-      setMessages((prev) => {
+      setMessages((prevMessages: ChatMessageInterface[]) => {
         // Prevent duplicate append
-        if (prev.find(m => m._id === data._id)) return prev;
+        if (prevMessages.find(m => m._id === data._id)) return prevMessages;
 
         // If in a thread view, only add if it belongs to this thread
         if (activeThread) {
           if (data.parentMessage === activeThread._id) {
-            return [...prev, data];
+            return [...prevMessages, data];
           }
-          return prev;
+          return prevMessages;
         } 
         
         // If in main list, only add if it's NOT a comment
         if (!data.parentMessage) {
-          return [...prev, data];
+          return [...prevMessages, data];
         }
 
-        return prev;
+        return prevMessages;
       });
-    } else {
-      setUnreadMessages((prev) => {
-         if (prev.find(m => m._id === data._id)) return prev;
-         return [...prev, data];
-      });
+    }
+
+    const chatId = typeof data.chat === 'string' ? data.chat : (data.chat as any)?._id;
+    if (chatId) {
+      if (currentChat.current?._id === chatId) {
+        resetChatUnread(chatId);
+      }
     }
   };
 
@@ -854,7 +856,7 @@ export default function Chats() {
   const renderChatItem = (chat: ChatInterface) => {
     const metadata = getChatObjectMetadata(chat, user!);
     const isSelected = currentChat.current?._id === chat._id;
-    const unreadCount = unreadMessages.filter((m) => m.chat === chat._id).length;
+    const unreadCount = unreadCountMap[chat._id] || 0;
     const isArchived = archivedChatIds.includes(chat._id);
 
     const activeCount = chat.isGroupChat ? chat.participants.filter(p => {
@@ -889,8 +891,8 @@ export default function Chats() {
               {activeCount}
             </div>
           )}
-          {unreadCount > 0 && (
-            <div className="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[10px] font-black min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center border-2 border-surface-dark [html.light_&]:border-white shadow-lg animate-bounce">
+          {unreadCount > 0 && !isSelected && (
+            <div className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center border-2 border-surface-dark [html.light_&]:border-white shadow-md z-10 transition-all">
               {unreadCount}
             </div>
           )}

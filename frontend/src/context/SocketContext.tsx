@@ -10,7 +10,9 @@ interface SocketContextType {
   isConnected: boolean;
   onlineUsers: string[];
   unreadTypes: { individual: boolean; group: boolean; channel: boolean };
+  unreadCountMap: Record<string, number>;
   resetUnreads: () => void;
+  resetChatUnread: (chatId: string) => void;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -21,12 +23,21 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [unreadTypes, setUnreadTypes] = useState({ individual: false, group: false, channel: false });
+  const [unreadCountMap, setUnreadCountMap] = useState<Record<string, number>>({});
   const chatTypeCache = useRef<Record<string, ChatType>>({});
 
   console.log('Sidebar unreadTypes:', unreadTypes);
 
   const resetUnreads = useCallback(() => {
     setUnreadTypes({ individual: false, group: false, channel: false });
+  }, []);
+
+  const resetChatUnread = useCallback((chatId: string) => {
+    setUnreadCountMap(prev => {
+        const next = { ...prev };
+        delete next[chatId];
+        return next;
+    });
   }, []);
 
   // Populate chat type cache on load or whenever user changes
@@ -127,8 +138,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         }
         
         if (type) {
-            console.log('Updating unreadTypes for type:', type);
             setUnreadTypes(prev => ({ ...prev, [type as ChatType]: true }));
+            setUnreadCountMap(prev => ({
+                ...prev,
+                [chatId]: (prev[chatId] || 0) + 1
+            }));
         }
     });
 
@@ -158,8 +172,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     isConnected,
     onlineUsers,
     unreadTypes,
-    resetUnreads
-  }), [socket, isConnected, onlineUsers, unreadTypes, resetUnreads]);
+    unreadCountMap,
+    resetUnreads,
+    resetChatUnread
+  }), [socket, isConnected, onlineUsers, unreadTypes, unreadCountMap, resetUnreads, resetChatUnread]);
 
   return (
     <SocketContext.Provider value={value}>
