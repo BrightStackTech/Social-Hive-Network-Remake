@@ -130,15 +130,24 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         if (senderId === currentUserId) return;
 
         const chatId = message.chat?._id?.toString() || message.chat?.toString() || message.chat;
+        if (!chatId) return;
+
         let type: ChatType | null | undefined = chatTypeCache.current[chatId];
         
         // Fallback: If type not in cache, try to refresh cache once
         if (!type) {
+            console.log('SocketContext: type not in cache for chat', chatId, 'fetching...');
             type = await fetchAndCacheChat(chatId);
         }
         
+        console.log('SocketContext: Message from', chatId, 'detected as type:', type);
+
         if (type) {
-            setUnreadTypes(prev => ({ ...prev, [type as ChatType]: true }));
+            setUnreadTypes(prev => {
+                const updated = { ...prev, [type as ChatType]: true };
+                console.log('SocketContext: Updated unreadTypes:', updated);
+                return updated;
+            });
             setUnreadCountMap(prev => ({
                 ...prev,
                 [chatId]: (prev[chatId] || 0) + 1

@@ -103,11 +103,26 @@ export default function Sidebar() {
               <div className="flex-1 flex items-center gap-2">
                 <span>{link.name}</span>
                 {/* 3 Dots implementation for Chats */}
-                {link.name === 'Chats' && !onChatsPage && (
-                  <div className="flex gap-1 items-center ml-1">
-                    {unreadTypes.individual && <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(250,204,21,0.5)]" />}
-                    {unreadTypes.group && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />}
-                    {unreadTypes.channel && <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />}
+                {link.name === 'Chats' && (
+                  <div className="flex gap-1.5 items-center ml-2">
+                    {unreadTypes.individual && (
+                      <span 
+                        title="Individual Chat"
+                        className="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse ring-1 ring-black/10 shadow-[0_0_8px_rgba(250,204,21,0.6)]" 
+                      />
+                    )}
+                    {unreadTypes.group && (
+                      <span 
+                        title="Group Chat"
+                        className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse ring-1 ring-black/10 shadow-[0_0_8px_rgba(34,197,94,0.6)]" 
+                      />
+                    )}
+                    {unreadTypes.channel && (
+                      <span 
+                        title="Channel Chat"
+                        className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse ring-1 ring-black/10 shadow-[0_0_8px_rgba(59,130,246,0.6)]" 
+                      />
+                    )}
                   </div>
                 )}
               </div>
