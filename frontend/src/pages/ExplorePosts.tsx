@@ -18,6 +18,7 @@ interface StoryUser {
 export default function ExplorePosts() {
   const { user } = useAuth();
   const [posts, setPosts] = useState<any[]>([]);
+  const [_allFetchedPosts, setAllFetchedPosts] = useState<any[]>([]); // raw chronological pool
   const [loading, setLoading] = useState(true);
   const [moreLoading, setMoreLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -68,6 +69,70 @@ export default function ExplorePosts() {
     }
   };
 
+  // ── Round-Robin interleaving ─────────────────────────────
+  // Groups posts by author and interleaves them so no more than
+  // 2 consecutive posts from the same user appear together.
+  // Falls back to chronological order if only one author exists.
+  const applyRoundRobin = (rawPosts: any[]): any[] => {
+    // Group by author id
+    const groups: Record<string, any[]> = {};
+    rawPosts.forEach((post) => {
+      const authorId =
+        post.createdBy?._id?.toString() ||
+        post.createdBy?.toString() ||
+        'unknown';
+      if (!groups[authorId]) groups[authorId] = [];
+      groups[authorId].push(post);
+    });
+
+    const authorIds = Object.keys(groups);
+    // Only one author — just return chronologically
+    if (authorIds.length <= 1) return rawPosts;
+
+    const result: any[] = [];
+    // Each author gets a cursor index
+    const cursors: Record<string, number> = {};
+    authorIds.forEach((id) => (cursors[id] = 0));
+
+    let lastAuthor: string | null = null;
+    let consecutiveCount = 0;
+
+    // Round-robin: pick next available author respecting the max-2 rule
+    const totalPosts = rawPosts.length;
+    while (result.length < totalPosts) {
+      let placed = false;
+      // Try each author in order, skip same author if already placed 2 in a row
+      for (let i = 0; i < authorIds.length; i++) {
+        const authorId = authorIds[i];
+        if (cursors[authorId] >= groups[authorId].length) continue; // exhausted
+
+        if (authorId === lastAuthor && consecutiveCount >= 2) continue; // max 2 rule
+
+        result.push(groups[authorId][cursors[authorId]]);
+        cursors[authorId]++;
+        consecutiveCount = authorId === lastAuthor ? consecutiveCount + 1 : 1;
+        lastAuthor = authorId;
+        placed = true;
+        break;
+      }
+
+      // Fallback: all remaining authors have hit max-2 in a row — just pick next available
+      if (!placed) {
+        for (const authorId of authorIds) {
+          if (cursors[authorId] < groups[authorId].length) {
+            result.push(groups[authorId][cursors[authorId]]);
+            cursors[authorId]++;
+            consecutiveCount = authorId === lastAuthor ? consecutiveCount + 1 : 1;
+            lastAuthor = authorId;
+            break;
+          }
+        }
+      }
+    }
+
+    return result;
+  };
+
   const observer = useRef<IntersectionObserver | null>(null);
   const lastPostRef = useCallback(
     (node: any) => {
@@ -90,13 +155,19 @@ export default function ExplorePosts() {
     try {
       const res = await getUserFeed({ limit, skip: isInitial ? 0 : skip });
       const newPosts = res.data.data;
-      
+
       if (isInitial) {
-        setPosts(newPosts);
+        setAllFetchedPosts(newPosts);
+        setPosts(applyRoundRobin(newPosts));
       } else {
-        setPosts((prev: any[]) => [...prev, ...newPosts]);
+        // Merge new page into existing pool, then re-interleave the whole thing
+        setAllFetchedPosts((prev) => {
+          const merged = [...prev, ...newPosts];
+          setPosts(applyRoundRobin(merged));
+          return merged;
+        });
       }
-      
+
       if (newPosts.length < limit) {
         setHasMore(false);
       }
