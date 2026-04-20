@@ -31,10 +31,10 @@ const ReportsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
-  const fetchReports = async (query?: string) => {
+  const fetchReports = async () => {
     setLoading(true);
     try {
-      const res = await getAllReportsForAdmin(query);
+      const res = await getAllReportsForAdmin();
       setReports(res.data.data);
     } catch (error) {
       toast.error('Failed to fetch reports');
@@ -47,11 +47,15 @@ const ReportsPage: React.FC = () => {
     fetchReports();
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchReports(searchQuery);
-  };
-
+  const filteredReports = reports.filter((r) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      r.reportedEmail?.toLowerCase().includes(q) ||
+      r.description?.toLowerCase().includes(q) ||
+      r.reportedBy?.username?.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -72,7 +76,7 @@ const ReportsPage: React.FC = () => {
         </div>
 
         {/* Search Box */}
-        <form onSubmit={handleSearch} className="relative group w-full md:w-96">
+        <div className="relative group w-full md:w-96">
           <input
             type="text"
             value={searchQuery}
@@ -81,9 +85,24 @@ const ReportsPage: React.FC = () => {
             className="w-full bg-surface-dark [html.light_&]:bg-white border border-border-dark [html.light_&]:border-border-light rounded-2xl py-3.5 pl-12 pr-4 text-text-dark [html.light_&]:text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
           />
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted-dark [html.light_&]:text-text-muted-light group-focus-within:text-primary transition-colors" size={20} />
-          <button type="submit" className="hidden">Search</button>
-        </form>
+        </div>
       </div>
+
+      {/* Search result count */}
+      {!loading && searchQuery.trim() && (
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-sm font-semibold text-primary">
+            <Search size={13} />
+            {filteredReports.length} result{filteredReports.length !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;
+          </span>
+          <button
+            onClick={() => setSearchQuery('')}
+            className="text-xs text-text-muted-dark hover:text-primary transition-colors font-medium"
+          >
+            Clear
+          </button>
+        </div>
+      )}
 
       {/* Reports Grid/Table */}
       {loading ? (
@@ -91,7 +110,7 @@ const ReportsPage: React.FC = () => {
           <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
           <p className="text-text-muted-dark font-medium animate-pulse">Fetching latest reports...</p>
         </div>
-      ) : reports.length === 0 ? (
+      ) : filteredReports.length === 0 ? (
         <div className="bg-surface-dark [html.light_&]:bg-white border border-border-dark [html.light_&]:border-border-light rounded-3xl p-16 text-center shadow-sm">
           <div className="w-20 h-20 bg-slate-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
              <FileText size={40} className="text-text-muted-dark" />
@@ -102,7 +121,7 @@ const ReportsPage: React.FC = () => {
           </p>
           {searchQuery && (
             <button 
-                onClick={() => { setSearchQuery(''); fetchReports(); }}
+                onClick={() => setSearchQuery('')}
                 className="mt-6 text-primary font-bold hover:underline"
             >
                 Clear search
@@ -111,7 +130,7 @@ const ReportsPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {reports.map((report) => (
+          {filteredReports.map((report) => (
             <div 
               key={report._id}
               className="bg-surface-dark [html.light_&]:bg-white border border-border-dark [html.light_&]:border-border-light rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden relative"
