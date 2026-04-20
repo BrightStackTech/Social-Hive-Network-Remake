@@ -204,7 +204,7 @@ const CommunityViewPage = () => {
         if (!window.confirm("ARE YOU SURE? This will permanently delete the community and all its content!")) return;
         setDeleting(true);
         try {
-            await axios.delete(`${SERVER_URI}/communities/${community._id}/delete`, {
+            await axios.delete(`${SERVER_URI}/communities/${community.communityName}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             toast.success("Community deleted");
