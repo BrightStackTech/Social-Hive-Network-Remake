@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Users, Copy, LogOut, Shield, MessageCircle, Search, UserPlus, ArrowLeft,
-  Settings, Trash2, Check, X, Globe, Lock, Save, Loader2, Clock
+  Settings, Trash2, Check, X, Globe, Lock, Save, Loader2, Clock, Camera
 } from 'lucide-react';
+import Cropper from 'react-cropper';
+import type { ReactCropperElement } from 'react-cropper';
+import 'cropperjs/dist/cropper.css';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/Dialog';
@@ -57,6 +60,13 @@ export default function ChannelIdPage() {
   const [deleting, setDeleting] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [promotingId, setPromotingId] = useState<string | null>(null);
+
+  // Cropper state
+  const [rawImage, setRawImage] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const cropperRef = useRef<ReactCropperElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchChannel = async () => {
     setLoading(true);
@@ -226,6 +236,50 @@ export default function ChannelIdPage() {
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImage(reader.result as string);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleCrop = () => {
+    const cropper = cropperRef.current?.cropper;
+    if (!cropper) return;
+    const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+    canvas.toBlob((blob) => {
+      if (blob) {
+        setShowCropper(false);
+        setRawImage(null);
+        handleUpload(blob);
+      }
+    }, 'image/jpeg', 0.9);
+  };
+
+  const handleUpload = async (blob: Blob) => {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('profilePicture', blob, 'channel_pfp.jpg');
+    try {
+      const res = await api.patch(
+        `${import.meta.env.VITE_SERVER_URL}/api/v1/channels/${channelId}/profile-picture`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      toast.success('Channel picture updated');
+      setChannel(prev => prev ? { ...prev, profilePicture: res.data.profilePicture } : null);
+    } catch {
+      toast.error('Failed to upload picture');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
@@ -261,14 +315,38 @@ export default function ChannelIdPage() {
 
       {/* ── Channel Header (Simple & Clean) ────────────────────── */}
       <div className="text-center mb-8">
-        <div className="w-32 h-32 mx-auto mb-4">
+        <div className="relative w-32 h-32 mx-auto mb-4 group/pfp">
           <div className="w-full h-full rounded-full bg-surface-elevated-dark [html.light_&]:bg-white flex items-center justify-center border-4 border-surface-card-dark [html.light_&]:border-surface-card-light shadow-lg overflow-hidden shrink-0">
              <img 
                src={channel.profilePicture || DEFAULT_CHANNEL_IMAGE} 
-               className="w-full h-full object-cover" 
+               className={`w-full h-full object-cover transition-opacity ${uploading ? 'opacity-50' : ''}`}
                alt={channel.name} 
              />
           </div>
+          {channel.isAdmin && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover/pfp:opacity-100 transition-all bg-black/40 rounded-2xl backdrop-blur-[2px]">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors cursor-pointer"
+                title="Edit Profile Picture"
+              >
+                <Camera size={24} />
+              </button>
+              <span className="text-[10px] text-white font-bold mt-1 uppercase tracking-tighter">Edit PFP</span>
+            </div>
+          )}
+          {uploading && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="animate-spin text-primary" size={32} />
+            </div>
+          )}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            accept="image/*"
+            className="hidden"
+          />
         </div>
 
         <h1 className="text-3xl font-bold text-text-dark [html.light_&]:text-text-light">
@@ -595,6 +673,39 @@ export default function ChannelIdPage() {
             >
               {actionLoading && <Loader2 size={14} className="animate-spin" />}
               Leave
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Crop Dialog ───────────────────────────── */}
+      <Dialog open={showCropper} onOpenChange={(open) => { if (!open) { setShowCropper(false); setRawImage(null); } }}>
+        <DialogContent className="max-w-lg p-6">
+          <DialogHeader>
+            <DialogTitle>Crop Channel Picture</DialogTitle>
+          </DialogHeader>
+          {rawImage && (
+            <Cropper
+              ref={cropperRef}
+              src={rawImage}
+              style={{ height: 320, width: '100%' }}
+              aspectRatio={1}
+              guides={false}
+              viewMode={1}
+            />
+          )}
+          <div className="mt-4 flex justify-end gap-3">
+            <button
+              onClick={() => { setShowCropper(false); setRawImage(null); }}
+              className="px-4 py-2 rounded-xl text-sm font-medium cursor-pointer text-text-muted-dark hover:text-text-dark transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCrop}
+              className="px-5 py-2 rounded-xl text-sm font-semibold cursor-pointer bg-primary text-white hover:bg-primary-light transition-all"
+            >
+              Crop & Upload
             </button>
           </div>
         </DialogContent>

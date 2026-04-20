@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { 
     createChannel, 
     getAllChannels, 
@@ -13,11 +14,13 @@ import {
     rejectRequest,
     removeFromChannel,
     cancelJoinRequest,
-    changeChannelAdmin
+    changeChannelAdmin,
+    updateChannelProfilePicture
 } from '../controllers/channel.controller.js';
 import { verifyJWT } from '../middleware/auth.middleware.js';
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 // All channel routes require authentication
 router.use(verifyJWT);
@@ -38,5 +41,6 @@ router.route('/:channelId/requests/:userId/reject').post(rejectRequest);
 router.route('/:channelId/members/:userId/remove').post(removeFromChannel);
 router.route('/:channelId/requests/cancel').post(cancelJoinRequest);
 router.route('/:channelId/admin/:userId').patch(changeChannelAdmin);
+router.route('/:channelId/profile-picture').patch(upload.single('profilePicture'), updateChannelProfilePicture);
 
 export default router;

@@ -3,6 +3,7 @@ import User from '../models/user.model.js';
 import { Chat } from '../models/chat.model.js';
 import { ChatMessage } from '../models/message.model.js';
 import { Post } from '../models/post.model.js';
+import { v2 as cloudinary } from 'cloudinary';
 
 // ── Create Channel ──────────────────────────────────────────
 export const createChannel = async (req, res) => {
@@ -415,5 +416,43 @@ export const changeChannelAdmin = async (req, res) => {
   } catch (error) {
     console.error('changeChannelAdmin error:', error);
     return res.status(500).json({ message: 'Failed to change admin' });
+  }
+};
+
+// ── Update channel profile picture (admin only) ──────────
+export const updateChannelProfilePicture = async (req, res) => {
+  try {
+    const { channelId } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image provided' });
+    }
+
+    const channel = await Channel.findById(channelId);
+    if (!channel) {
+      return res.status(404).json({ message: 'Channel not found' });
+    }
+
+    if (channel.admin.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Only admin can update the profile picture' });
+    }
+
+    // Upload to Cloudinary
+    const b64 = Buffer.from(req.file.buffer).toString('base64');
+    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+    const uploadResult = await cloudinary.uploader.upload(dataURI, {
+      folder: 'image/upload',
+    });
+
+    channel.profilePicture = uploadResult.secure_url;
+    await channel.save();
+
+    return res.json({
+      message: 'Channel profile picture updated',
+      profilePicture: channel.profilePicture,
+    });
+  } catch (error) {
+    console.error('updateChannelProfilePicture error:', error);
+    return res.status(500).json({ message: 'Failed to update profile picture' });
   }
 };
