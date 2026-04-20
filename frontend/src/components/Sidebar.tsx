@@ -16,6 +16,7 @@ import {
   Sun,
   Moon,
   Tv,
+  Heart,
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
@@ -34,6 +35,7 @@ const sidebarLinks = [
   { name: 'Channels', path: '/channels', icon: Tv },
   { name: 'Communities', path: '/communities', icon: Globe },
   { name: 'Live Sessions', path: '/live-sessions', icon: MonitorPlay },
+  { name: 'Notifications', path: '/notifications', icon: Heart },
 
   { name: 'Profile', path: '/profile', icon: UserCircle },
 ];

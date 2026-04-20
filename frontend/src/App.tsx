@@ -50,6 +50,8 @@ import AdminPasswordPage from './pages/Admin/AdminPasswordPage';
 import AdminRoute from './components/AdminRoute';
 import CheckUserUpdatePage from './pages/CheckUserUpdatePage';
 
+import NotificationsPage from './pages/NotificationsPage';
+
 
 
 // Redirects based on auth state: logged in → /explore, guest → landing page
@@ -124,6 +126,7 @@ function App() {
               <Route path="/communities/c/:communityName" element={<CommunityViewPage />} />
               <Route path="/compost/:id" element={<ComPostPage />} />
               <Route path="/com-search" element={<ComSearchPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
 
             </Route>
 
