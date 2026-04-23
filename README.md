@@ -94,7 +94,7 @@ taskkill /PID PID_number /F
 - [Yog Vasaikar](https://github.com/freakynutzz100) 
 - [Ritish Kumar](https://github.com/CrozzaX)
 - [Udhav Detha](https://github.com/CrozzaX)
-- [Sumukh Kanekar](https://github.com/CrozzaX) 
+- [Sumukh Kanekar](https://github.com/Sumukh-999) 
 
 ## Contributing 🤝
 
