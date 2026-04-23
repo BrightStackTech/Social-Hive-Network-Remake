@@ -4,7 +4,9 @@ A platform designed to foster community and collaboration among students from va
 
 ### Live Link
 
-👉 [SocialHive](https://Social-Hive-Network-mpstme.vercel.app)
+👉 [SocialHive](https://Social-Hive-Network-mpstme.vercel.app)  <br/>
+
+<img width="1919" height="968" alt="Screenshot 2026-04-23 202610" src="https://github.com/user-attachments/assets/9b3c90c8-ce60-40cb-9b04-83d9f067e830" /> <br/>
 
 ---
 
