@@ -44,7 +44,7 @@ A. To Download & Install this project,
 1. **Clone** this Repository:
 
 ```bash
-git clone https://github.com/BrightStackTech/Social_Hive_Network.git
+git clone https://github.com/BrightStackTech/Social-Hive-Network-Remake.git
 ```
 
 2. Install the dependencies:
